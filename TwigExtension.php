@@ -36,6 +36,14 @@ use Slim\Slim;
 
 class TwigExtension extends \Twig_Extension
 {
+
+    /** @var Slim */
+    private $application;
+
+    public function __construct(Slim $application) {
+        $this->application = $application;
+    }
+
     public function getName()
     {
         return 'slim';
@@ -50,24 +58,24 @@ class TwigExtension extends \Twig_Extension
         );
     }
 
-    public function urlFor($name, $params = array(), $appName = 'default')
+    public function urlFor($name, $params = array(), $queryParams = array())
     {
-        return Slim::getInstance($appName)->urlFor($name, $params);
+        return $this->application->urlFor($name, $params, $queryParams);
     }
 
-    public function site($url, $withUri = true, $appName = 'default')
+    public function site($url, $withUri = true)
     {
-        return $this->base($withUri, $appName) . '/' . ltrim($url, '/');
+        return $this->base($withUri) . '/' . ltrim($url, '/');
     }
 
-    public function base($withUri = true, $appName = 'default')
+    public function base($withUri = true)
     {
-        $req = Slim::getInstance($appName)->request();
+        $req = $this->application->request();
         $uri = $req->getUrl();
 
-        if ($withUri) {
+        if ($withUri)
             $uri .= $req->getRootUri();
-        }
+
         return $uri;
     }
 }
